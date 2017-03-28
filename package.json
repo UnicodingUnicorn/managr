@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/UnicodingUnicorn/managr/issues"
   },
-  "homepage": "https://github.com/UnicodingUnicorn/managr#readme"
+  "homepage": "https://github.com/UnicodingUnicorn/managr#readme",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "jsonwebtoken": "^7.3.0",
+    "mysql": "^2.13.0"
+  }
 }

@@ -1,6 +1,6 @@
 //Java admin program, cos I have to
 import java.sql.*;
-
+import jcurses.*;
 
 public class admin {
   public static void main(String args[]){

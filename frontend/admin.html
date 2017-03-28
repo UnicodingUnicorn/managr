@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Managr - Admin</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+		<script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript">
+      //Initialise select element
+      $(document).ready(function() {
+        $('select').material_select();
+      });
+    </script>
+  </head>
+  <body>
+  <div id="app">
+    <!--div class="row">
+      <div class="col m10 offset-m1">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Admin Credentials</span>
+            <form>
+            <div class="input-field col m6">
+              <input id="username" type="text" class="validate">
+              <label for="username">Username</label>
+            </div>
+            <div class="input-field col m6">
+              <input id="password" type="password" class="validate">
+              <label for="password">Password</label>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div-->
+    <div class="row">
+      <div class="col m12">
+        <ul class="tabs">
+          <li class="tab col s2"><a class="active" href="#upload">Upload</a></li>
+          <li class="tab col s2 input-field">
+            <input id="username" type="text" class="validate">
+            <label for="username">Username</label>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div id="upload" class="row">
+      <form class="col s10 offset-s1">
+        <h6>Upload data</h6>
+        <div class="row">
+          <div class="input-field col s8">
+            <select id="table">
+              <option value="teacher">Teacher</option>
+              <option value="student">Student</option>
+              <option value="module">Module</option>
+              <option value="class">Class</option>
+              <option value="project">Project</option>
+              <option value="phase">Phase</option>
+              <option value="submission">Submission</option>
+            </select>
+            <label>Select table</label>
+          </div>
+        </div>
+        <div class="row file-field input-field">
+          <div class="btn waves-effect waves-light">
+            <span>Choose a file</span>
+            <input type="file" accept=".csv">
+          </div>
+          <div class="file-path-wrapper">
+            <input class="file-path validate" type="text">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s2">
+            <input name="action" type="radio" id="overwrite">
+            <label for="overwrite">Overwrite</label>
+          </div>
+          <div class="col s2">
+            <input name="action" type="radio" id="append">
+            <label for="append">Append</label>
+          </div>
+        </div>
+        <input class="btn waves-effect waves-light" type="submit" value="Upload">
+      </form>
+    </div>
+  </div>
+  </body>
+  <script type="text/javascript" src="js/vue.js"></script>
+  <script type="text/javascript" src="js/admin.js"></script>
+</html>

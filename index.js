@@ -1,20 +1,26 @@
+var config = require("./config");
+
 var express = require("express");
 var bodyParser = require("body-parser");
-var jwt = require("jsonwebtoken");
+
 var mysql = require("mysql");
+var connection = mysql.createConnection({
+  host : config.host,
+  user : config.user,
+  password : config.password,
+  database : 'managr'
+});
+
+var api = require("./api")(connection, config);
 
 var app = express();
-var api = express.Router();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 
 app.use("/api", api);
 
-api.post("/login", function(req, res){
-
-});
-
-app.listen(8080, function(){
+app.listen(10201, function(err){
+  if(err) console.log(err);
   console.log("Listening");
 });

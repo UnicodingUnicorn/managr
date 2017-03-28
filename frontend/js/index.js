@@ -1,11 +1,20 @@
 var vm = new Vue({
 	el : "#app",
 	data : {
-		login : null
+		login : null,
+		type : "student",
+		projects : [{
+			title : "Project 1",
+			description : "Stuff"
+		},
+		{
+			title : "Project 2",
+			description : "Stuff"
+		}]
 	},
 	methods : {
 		login : function(event){
-			var formData : {
+			var formData = {
 				email : $("#email").val(),
 				password :$("#password").val()
 			};
