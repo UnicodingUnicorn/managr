@@ -1,8 +1,7 @@
 var vm = new Vue({
 	el : "#app",
 	data : {
-		login : null,
-		type : "student",
+		type : "",
 		projects : [{
 			title : "Project 1",
 			description : "Stuff"
@@ -13,7 +12,7 @@ var vm = new Vue({
 		}]
 	},
 	methods : {
-		login : function(event){
+		login_p : function(event) {
 			var formData = {
 				email : $("#email").val(),
 				password :$("#password").val()
@@ -22,6 +21,7 @@ var vm = new Vue({
 				function(res){
 				 		Cookies.set("token", res.body.token.token, {expires : res.body.token.expires});
 						vm.login = Cookies.get('token');
+						vm.type = res.body.user.type;
 			 	},
 			 	function(res){
 			 		this.message = res.body.message;

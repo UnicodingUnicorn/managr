@@ -20,8 +20,8 @@ CREATE TABLE Teacher (
 
 CREATE TABLE Student (
   email VARCHAR(255) NOT NULL,
-  student_id INT,
-  class VARCHAR(10),
+  student_id CHAR(8),
+  class CHAR(6),
   PRIMARY KEY (email),
   FOREIGN KEY (email) REFERENCES User(email) ON UPDATE CASCADE ON DELETE CASCADE
 );

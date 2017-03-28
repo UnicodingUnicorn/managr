@@ -16,14 +16,19 @@ module.exports = function(connection, config){
 
   api.post("/login", function(req, res){
     connection.connect();
-    connection.query('SELECT * FROM User WHERE email = ' + req.body.email + ' AND password = ' + req.body.password, function(err, results, fields){
+    connection.query('SELECT * FROM User WHERE email = \'' + req.body.email + '\';', function(err, results, fields){
       if(err){
         res.status(500).json({
           success : false,
-          message : "Internal database error"
+          message : err
         });
-      }
-      if(results.length > 1){
+      }else if(results == null){
+        res.status(500).json({
+          success : false,
+          message : "User not found"
+        })
+        return;
+      }else if(results.length > 1){
         res.status(500).json({
           success : false,
           message : "Multiple entry error"
@@ -31,26 +36,28 @@ module.exports = function(connection, config){
       }else{
         if(results[0].password == req.body.password){
           if(results[0].type = 'teacher'){
-            connection.query('SELECT *  FROM Teacher WHERE email = ' + results[0].email, function(err, teacher){
+            connection.query('SELECT *  FROM Teacher WHERE email = \'' + results[0].email + '\';', function(err, teacher){
               if(err){
                 res.status(500).json({
                   success : false,
-                  message : "Internal database error"
+                  message : err
                 });
-              }
+              }else{
               results[0].teacher = teacher;
-              res.status(200).json({
-                success : true,
-                message : "Success!",
-                teacher : results[0],
-                token : {
-                  token : jwt.sign(results[0], secret, {expiresIn : expiry}),
-                  expiry : expiry
-                }
-              })
+                res.status(200).json({
+                  success : true,
+                  message : "Success!",
+                  user : results[0],
+                  token : {
+                    token : jwt.sign(results[0], secret, {expiresIn : expiry}),
+                    expiry : expiry
+                  }
+                });
+                //connection.end();
+              }
             });
           }else if(results[0].type = 'student'){
-            connection.query('SELECT *  FROM Student WHERE email = ' + results[0].email, function(err, student){
+            connection.query('SELECT *  FROM Student WHERE email = \'' + results[0].email + '\';', function(err, student){
               if(err){
                 res.status(500).json({
                   success : false,
@@ -61,12 +68,13 @@ module.exports = function(connection, config){
               res.status(200).json({
                 success : true,
                 message : "Success!",
-                student : results[0],
+                user : results[0],
                 token : {
                   token : jwt.sign(results[0], secret, {expiresIn : expiry}),
                   expiry : expiry
                 }
-              })
+              });
+              //connection.end();
             });
           }else{
             res.status(500).json({
@@ -81,8 +89,9 @@ module.exports = function(connection, config){
           })
         }
       }
+      connection.end();
     });
-    connection.end();
+
   });
 
   api.get("/login", function(req, res){
@@ -148,6 +157,6 @@ module.exports = function(connection, config){
       connection.end();
     });
   });
-
+  
   return api;
 };

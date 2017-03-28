@@ -18,9 +18,9 @@ INSERT INTO User (
   "student@school.com", "Student", "password", "student"
 );
 INSERT INTO Student (
-  student_id, class
+  email, student_id, class
 ) VALUES (
-  h1310001, M17502
+  "student@school.com", "h1310001", "M17502"
 );
 --Insert test Module
 INSERT INTO Module (

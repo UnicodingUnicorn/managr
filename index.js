@@ -8,7 +8,7 @@ var connection = mysql.createConnection({
   host : config.host,
   user : config.user,
   password : config.password,
-  database : 'managr'
+  database : 'MANAGR'
 });
 
 var api = require("./api")(connection, config);
@@ -19,6 +19,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 
 app.use("/api", api);
+app.use(express.static(__dirname + "/frontend"));
+
+app.get("/", function(req, res){
+  res.sendFile(__dirname + "/frontend/index.html");
+});
 
 app.listen(10201, function(err){
   if(err) console.log(err);
