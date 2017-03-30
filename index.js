@@ -10,6 +10,7 @@ var connection = mysql.createConnection({
   password : config.password,
   database : 'MANAGR'
 });
+connection.connect();
 
 var api = require("./api")(connection, config);
 

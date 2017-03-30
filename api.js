@@ -15,14 +15,14 @@ module.exports = function(connection, config){
   });
 
   api.post("/login", function(req, res){
-    connection.connect();
+    //connection.connect();
     connection.query('SELECT * FROM User WHERE email = \'' + req.body.email + '\';', function(err, results, fields){
       if(err){
         res.status(500).json({
           success : false,
           message : err
         });
-      }else if(results == null){
+      }else if(results == null || results.length < 1){
         res.status(500).json({
           success : false,
           message : "User not found"
@@ -35,7 +35,7 @@ module.exports = function(connection, config){
         });
       }else{
         if(results[0].password == req.body.password){
-          if(results[0].type = 'teacher'){
+          if(results[0].type == 'teacher'){
             connection.query('SELECT *  FROM Teacher WHERE email = \'' + results[0].email + '\';', function(err, teacher){
               if(err){
                 res.status(500).json({
@@ -56,7 +56,7 @@ module.exports = function(connection, config){
                 //connection.end();
               }
             });
-          }else if(results[0].type = 'student'){
+          }else if(results[0].type == 'student'){
             connection.query('SELECT *  FROM Student WHERE email = \'' + results[0].email + '\';', function(err, student){
               if(err){
                 res.status(500).json({
@@ -89,74 +89,75 @@ module.exports = function(connection, config){
           })
         }
       }
-      connection.end();
     });
 
   });
 
   api.get("/login", function(req, res){
-    jwt.verify(req.params.token, secret, function(err, decoded){
+    jwt.verify(req.query.token, secret, function(err, decoded){
       if(err){
         res.status(403).json({
           success : false,
-          message : "Invalid token"
+          message : err
+        });
+      }else{
+        res.status(200).json({
+          success : true,
+          message : "Success!",
+          user : decoded
         });
       }
-      connection.connect();
-      connection.query(('SELECT * FROM User WHERE email = ' +  req.body.email + ' AND password = ' + req.body.password), function(err, results, fields){
-        if(err){
-          res.status(500).json({
-            success : false,
-            message : "Internal database error"
-          });
-        }
-        if(results.length > 1){
-          res.status(500).json({
-            success : false,
-            message : "Multiple entry error"
-          });
-        }else{
-          if(results[0].type = 'teacher'){
-            connection.query('SELECT *  FROM Teacher WHERE email = ' + results[0].email, function(err, teacher){
-              if(err){
-                res.status(500).json({
-                  success : false,
-                  message : "Internal database error"
-                });
-              }
-              results[0].teacher = teacher;
-              res.status(200).json({
-                success : true,
-                message : "Success!",
-                teacher : results[0]
-              })
-            });
-          }else if(results[0].type = 'student'){
-            connection.query('SELECT *  FROM Student WHERE email = ' + results[0].email, function(err, student){
-              if(err){
-                res.status(500).json({
-                  success : false,
-                  message : "Internal database error"
-                });
-              }
-              results[0].student = student;
-              res.status(200).json({
-                success : true,
-                message : "Success!",
-                student : results[0]
-              })
-            });
-          }else{
-            res.status(500).json({
-              success : false,
-              message : "Unknown type!"
-            });
-          }
-        }
-      });
-      connection.end();
     });
   });
-  
+
+  api.get("/student-projects", function(req, res){
+    jwt.verify(req.query.token, secret, function(err, decoded){
+      if(err){
+        res.status(403).json({
+          success : false,
+          message : err
+        });
+      }else{
+        connection.query("SELECT p.* FROM works_on w, Project p WHERE w.s_email = \'" + decoded.email + "\' AND w.p_title = p.title;", function(dberr, projects){
+          if(dberr){
+            res.status(500).json({
+              success : false,
+              message : dberr
+            });
+          }else{
+            for(project in projects){
+              connection.query("SELECT * FROM Phase WHERE project = \'" + project.title +  "\';", function(phaseerr, phases){
+                if(phaseerr){
+                  res.status(500).json({
+                    success : false,
+                    message : phaseerr
+                  });
+                }else{
+                  project.phases = phases;
+                  for(phase in phases){
+                    connection.query("SELECT * From Submission WHERE phase = \'" + phase.title + "\';", function(suberr, submissions){
+                      if(suberr){
+                        res.status(500).json({
+                          success : false,
+                          message : suberr
+                        });
+                      }else{
+                        phase.submissions = submissions;
+                      }
+                    });
+                  }
+                }
+              });
+            }
+            res.status(200).json({
+              success : true,
+              projects : projects
+            });
+          }
+        });
+      }
+    });
+  });
+
   return api;
 };
