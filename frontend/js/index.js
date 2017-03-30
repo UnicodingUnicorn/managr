@@ -3,14 +3,7 @@ var vm = new Vue({
 	data : {
 		user : null,
 		message : "",
-		projects : [{
-			title : "Project 1",
-			description : "Stuff"
-		},
-		{
-			title : "Project 2",
-			description : "Stuff"
-		}]
+		projects : []
 	},
 	methods : {
 		login_p : function(event) {
@@ -22,6 +15,7 @@ var vm = new Vue({
 				function(res){
 				 		Cookies.set("token", res.body.token.token, {expires : res.body.token.expires});
 						vm.user = res.body.user;
+						this.runonload();
 			 	},
 			 	function(res){
 			 		this.message = res.body.message;
@@ -30,14 +24,22 @@ var vm = new Vue({
 		},
 		runonload : function() {
 			var token = Cookies.get('token');
-			console.log(token);
-			this.$http.get('/api/login', {params : {token : token}}).then(
-				function(res){
-					vm.user = res.body.user;
-				}, function(res){
-					message = res.body.message;
-				}
-			);
+			if(token){
+				this.$http.get('/api/login', {params : {token : token}}).then(
+					function(res){
+						vm.user = res.body.user;
+					}, function(res){
+						message = res.body.message;
+					}
+				);
+				this.$http.get('/api/student-projects', {params : {token : token}}).then(
+					res => {
+						vm.projects = res.body.projects;
+					}, res => {
+						message = res.body.message;
+					}
+				);
+			}
 		}
 	}
 });

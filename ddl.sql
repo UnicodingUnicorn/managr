@@ -56,7 +56,7 @@ CREATE TABLE Phase (
   deadline DATETIME,
   project VARCHAR(255) NOT NULL,
   percentage FLOAT,
-  PRIMARY KEY (title),
+  PRIMARY KEY (title, project),
   FOREIGN KEY (project) REFERENCES Project(title) ON UPDATE CASCADE ON DELETE CASCADE
 );
 

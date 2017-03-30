@@ -135,7 +135,7 @@ module.exports = function(connection, config){
                 }else{
                   project.phases = phases;
                   for(phase in phases){
-                    connection.query("SELECT * From Submission WHERE phase = \'" + phase.title + "\';", function(suberr, submissions){
+                    connection.query("SELECT * From Submission WHERE phase = \'" + phase.title + "\' AND submitter = \'" + decoded.email + "\';", function(suberr, submissions){
                       if(suberr){
                         res.status(500).json({
                           success : false,
@@ -149,6 +149,7 @@ module.exports = function(connection, config){
                 }
               });
             }
+            console.log(projects);
             res.status(200).json({
               success : true,
               projects : projects
