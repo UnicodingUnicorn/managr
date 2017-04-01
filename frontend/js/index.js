@@ -35,11 +35,17 @@ var vm = new Vue({
 				this.$http.get('/api/student-projects', {params : {token : token}}).then(
 					res => {
 						vm.projects = res.body.projects;
+						console.log(vm.projects);
 					}, res => {
 						message = res.body.message;
 					}
 				);
 			}
+		},
+		logout_p : function(event) {
+			Cookies.remove('token');
+			vm.user = null;
+			location.reload();
 		}
 	}
 });

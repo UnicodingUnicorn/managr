@@ -6,6 +6,8 @@ module.exports = function(connection, config){
   var secret = config.secret;
   var expiry = config.expiry;
 
+  var async = require("async");
+
   var api = express.Router();
   api.use(bodyParser.json());
   api.use(bodyParser.urlencoded({extended : true}));
@@ -125,7 +127,7 @@ module.exports = function(connection, config){
               message : dberr
             });
           }else{
-            for(project in projects){
+            async.each(projects, function(project, project_cb){
               connection.query("SELECT * FROM Phase WHERE project = \'" + project.title +  "\';", function(phaseerr, phases){
                 if(phaseerr){
                   res.status(500).json({
@@ -134,7 +136,7 @@ module.exports = function(connection, config){
                   });
                 }else{
                   project.phases = phases;
-                  for(phase in phases){
+                  async.each(phases, function(phase, phase_cb){
                     connection.query("SELECT * From Submission WHERE phase = \'" + phase.title + "\' AND submitter = \'" + decoded.email + "\';", function(suberr, submissions){
                       if(suberr){
                         res.status(500).json({
@@ -143,16 +145,20 @@ module.exports = function(connection, config){
                         });
                       }else{
                         phase.submissions = submissions;
+                        phase_cb();
                       }
                     });
-                  }
+                  }, function(err){
+                    if(err) project_cb(err);
+                    project_cb(null);
+                  });
                 }
               });
-            }
-            console.log(projects);
-            res.status(200).json({
-              success : true,
-              projects : projects
+            }, function(err){
+              res.status(200).json({
+                success : true,
+                projects : projects
+              });
             });
           }
         });

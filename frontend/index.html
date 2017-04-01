@@ -41,6 +41,14 @@
       </form>
     </div>
     <div v-else>
+      <nav>
+        <div class="nav-wrapper cyan">
+          <a class="brand-logo">{{user.email}}</a>
+          <ul id="nav-mobile" class="right">
+            <li><a v-on:click="logout_p">Logout</a></li>
+          </ul>
+        </div>
+      </nav>
       <div v-show="user.type=='student'" class="row">
         <div class="col s10 offset-s1">
           <div class="row">
@@ -48,6 +56,11 @@
               <div class="card-content teal-lighten-2">
                 <span class="card-title">{{project.title}}</span>
                 <p>{{project.description}}</p>
+                <ul>
+                  <li v-for="phase in project.phases">
+                    {{phase.title}}
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
