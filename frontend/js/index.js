@@ -28,15 +28,16 @@ var vm = new Vue({
 				this.$http.get('/api/login', {params : {token : token}}).then(
 					function(res){
 						vm.user = res.body.user;
+						if(vm.user.type == "student"){
+							this.$http.get('/api/student-projects', {params : {token : token}}).then(
+								res => {
+									vm.projects = res.body.projects;
+								}, res => {
+									message = res.body.message;
+								}
+							);
+						}
 					}, function(res){
-						message = res.body.message;
-					}
-				);
-				this.$http.get('/api/student-projects', {params : {token : token}}).then(
-					res => {
-						vm.projects = res.body.projects;
-						console.log(vm.projects);
-					}, res => {
 						message = res.body.message;
 					}
 				);
@@ -46,6 +47,17 @@ var vm = new Vue({
 			Cookies.remove('token');
 			vm.user = null;
 			location.reload();
+		},
+		upload_p : function(event){
+			console.log(event.target.id);
+			var formData = new FormData();
+			formData.append("submitted", event.target.files[0]);
+			this.$http.post("/fileserve/upload", formData, {headers: {'Content-Type': 'multipart/form-data'}}).then(
+				res => {
+					Materialize.toast(""+res.message, 4000);
+				}, res => {
+					Materialize.toast(res, 4000);
+				});
 		}
 	}
 });

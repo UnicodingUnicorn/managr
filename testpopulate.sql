@@ -43,12 +43,12 @@ INSERT INTO Project (
 INSERT INTO Phase (
   title, description, deadline, project, percentage
 ) VALUES (
-  "Phase 1", "Phase 1 of the stuff", "20170601 11:59:59 PM", "TT5101 Project 1", 50.0
+  "Phase 1", "Phase 1 of the stuff", "2017-06-01 23:59:59", "TT5101 Project 1", 50.0
 );
 INSERT INTO Phase (
   title, description, deadline, project, percentage
 ) VALUES (
-  "Phase 2", "Phase 2 of the stuff", "20170603 11:59:59 PM", "TT5101 Project 1", 50.0
+  "Phase 2", "Phase 2 of the stuff", "2017-06-03 23:59:59", "TT5101 Project 1", 50.0
 );
 INSERT INTO works_on (
   p_title, s_email
@@ -63,12 +63,12 @@ INSERT INTO Project (
 INSERT INTO Phase (
   title, description, deadline, project, percentage
 ) VALUES (
-  "Phase 1", "Phase 1 of the stuff", "20170601 11:59:59 PM", "TT5101 Project 2", 50.0
+  "Phase 1", "Phase 1 of the stuff", "2017-06-01 23:59:59", "TT5101 Project 2", 50.0
 );
 INSERT INTO Phase (
   title, description, deadline, project, percentage
 ) VALUES (
-  "Phase 2", "Phase 2 of the stuff", "20170603 11:59:59 PM", "TT5101 Project 2", 50.0
+  "Phase 2", "Phase 2 of the stuff", "2017-06-03 23:59:59", "TT5101 Project 2", 50.0
 );
 INSERT INTO works_on (
   p_title, s_email

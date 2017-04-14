@@ -3,5 +3,6 @@ module.exports = {
   user : "root",
   password : "",
   secret : "secret",
-  expiry : 30 * 24 * 60 * 60 //1 month
+  expiry : 30 * 24 * 60 * 60, //1 month
+  dest : "uploads/"
 };

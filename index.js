@@ -13,6 +13,7 @@ var connection = mysql.createConnection({
 connection.connect();
 
 var api = require("./api")(connection, config);
+var fileserve = require("./fileserve");
 
 var app = express();
 
@@ -20,6 +21,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 
 app.use("/api", api);
+app.use("/fileserve", fileserve);
 app.use(express.static(__dirname + "/frontend"));
 
 app.get("/", function(req, res){

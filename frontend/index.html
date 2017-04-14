@@ -4,10 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Managr</title>
     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-		<link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
-
-		<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-		<script type="text/javascript" src="js/materialize.min.js"></script>
+		<!--link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
 
     <script type="text/javascript" src="js/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/vue.resource/1.2.1/vue-resource.min.js"></script>
@@ -43,22 +41,32 @@
     <div v-else>
       <nav>
         <div class="nav-wrapper cyan">
-          <a class="brand-logo">{{user.email}}</a>
+          <a class="brand-logo">Managr</a>
           <ul id="nav-mobile" class="right">
+            <li class="disabled">{{user.email}}</li>
             <li><a v-on:click="logout_p">Logout</a></li>
           </ul>
         </div>
       </nav>
       <div v-show="user.type=='student'" class="row">
         <div class="col s10 offset-s1">
+
           <div class="row">
             <div v-for="project in projects" class="col s10 offset-s1 card">
               <div class="card-content teal-lighten-2">
                 <span class="card-title">{{project.title}}</span>
                 <p>{{project.description}}</p>
-                <ul>
-                  <li v-for="phase in project.phases">
-                    {{phase.title}}
+                <ul class="collection">
+                  <li v-for="phase in project.phases" class="collection-item avatar">
+                    <i v-if="phase.submissions.length!=0" class="material-icons circle green">done</i>
+                    <i v-else class="material-icons circle red">error_outline</i></a>
+                    <span class="title">{{phase.title}} ({{phase.percentage}}%)</span>
+                    <p>
+                      {{phase.description}}<br />
+                      Due: {{phase.deadline}}
+                    </p>
+                    <!--div v-bind:class="{{phase.title}}"></div-->
+                    <div class="secondary-content file-field btn" ><span><i class="material-icons">add</i></span><input v-bind:id="phase.title+'+'+project.title" @change="upload_p" type="file"></div>
                   </li>
                 </ul>
               </div>
@@ -73,5 +81,9 @@
   </div>
   </body>
 
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+  <!--script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script-->
   <script type="text/javascript" src="js/index.js"></script>
+  <script>$('.collapsible').collapsible();</script>
 </html>
