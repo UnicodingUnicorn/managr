@@ -3,7 +3,8 @@ var vm = new Vue({
 	data : {
 		user : null,
 		message : "",
-		projects : []
+		projects : [],
+		classes : []
 	},
 	methods : {
 		login_p : function(event) {
@@ -36,6 +37,14 @@ var vm = new Vue({
 									message = res.body.message;
 								}
 							);
+						}else if(vm.user.type == "teacher"){
+							this.$http.get('/api/teacher-classes', {params : {token : token}}).then(
+								res => {
+									console.log(res.body);
+								}, res => {
+									message = res.body.message;
+								}
+							);
 						}
 					}, function(res){
 						message = res.body.message;
@@ -54,9 +63,21 @@ var vm = new Vue({
 			formData.append("submitted", event.target.files[0]);
 			this.$http.post("/fileserve/upload", formData, {headers: {'Content-Type': 'multipart/form-data'}}).then(
 				res => {
-					Materialize.toast(""+res.message, 4000);
+					var data = {
+						token : Cookies.get("token"),
+						link : res.body.filename,
+						phase : event.target.id.split("+")[0],
+						project : event.target.id.split("+")[1],
+					};
+					this.$http.post("/api/new-submission", data, {emulateJSON : true}).then(
+						s_res => {
+							this.runonload();
+							Materialize.toast("Submission successful", 4000);
+						}, s_res => {
+							Materialize.toast("Submission failed", 4000);
+					});
 				}, res => {
-					Materialize.toast(res, 4000);
+					Materialize.toast("File upload failed", 4000);
 				});
 		}
 	}

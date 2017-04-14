@@ -50,7 +50,6 @@
       </nav>
       <div v-show="user.type=='student'" class="row">
         <div class="col s10 offset-s1">
-
           <div class="row">
             <div v-for="project in projects" class="col s10 offset-s1 card">
               <div class="card-content teal-lighten-2">
@@ -58,14 +57,18 @@
                 <p>{{project.description}}</p>
                 <ul class="collection">
                   <li v-for="phase in project.phases" class="collection-item avatar">
-                    <i v-if="phase.submissions.length!=0" class="material-icons circle green">done</i>
-                    <i v-else class="material-icons circle red">error_outline</i></a>
+                    <i v-show="phase.submissions.length!=0" class="material-icons circle green">done</i>
+                    <i v-show="phase.submissions.length==0" class="material-icons circle red">error_outline</i></a>
                     <span class="title">{{phase.title}} ({{phase.percentage}}%)</span>
                     <p>
                       {{phase.description}}<br />
-                      Due: {{phase.deadline}}
+                      Due: {{phase.deadline.replace("T", " ").split(".")[0]}}
+                      <ul v-show="phase.submissions!=0" class="collection">
+                        <li v-for="submission in phase.submissions" class="collection-item">
+                          <a v-bind:href="'/fileserve/'+submission.link">{{submission.link}}</a>
+                        </li>
+                      </ul>
                     </p>
-                    <!--div v-bind:class="{{phase.title}}"></div-->
                     <div class="secondary-content file-field btn" ><span><i class="material-icons">add</i></span><input v-bind:id="phase.title+'+'+project.title" @change="upload_p" type="file"></div>
                   </li>
                 </ul>
@@ -74,8 +77,10 @@
           </div>
         </div>
       </div>
-      <div v-show="user.type=='teacher'">
-        Teacher
+      <div v-show="user.type=='teacher'" class="row">
+        <div class="col s10 offset-s1">
+
+        </div>
       </div>
     </div>
   </div>

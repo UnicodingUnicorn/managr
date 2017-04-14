@@ -30,9 +30,10 @@ fileserve.get("/:filename", function(req, res){
 });
 
 fileserve.post("/upload", upload.single('submitted'), function(req, res){
+  
   res.status(200).json({
     success : true,
-    message : req.file.filename
+    filename : req.file.filename
   });
 });
 

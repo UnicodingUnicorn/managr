@@ -2,6 +2,8 @@ module.exports = function(connection, config){
   var express = require("express");
   var bodyParser = require("body-parser");
 
+  var shortid = require("shortid");
+  var fecha = require("fecha");
   var jwt = require("jsonwebtoken");
   var secret = config.secret;
   var expiry = config.expiry;
@@ -18,7 +20,7 @@ module.exports = function(connection, config){
 
   api.post("/login", function(req, res){
     //connection.connect();
-    connection.query('SELECT * FROM User WHERE email = \'' + req.body.email + '\';', function(err, results, fields){
+    connection.query('SELECT * FROM User WHERE email = ?;', req.body.email, function(err, results, fields){
       if(err){
         res.status(500).json({
           success : false,
@@ -38,7 +40,7 @@ module.exports = function(connection, config){
       }else{
         if(results[0].password == req.body.password){
           if(results[0].type == 'teacher'){
-            connection.query('SELECT *  FROM Teacher WHERE email = \'' + results[0].email + '\';', function(err, teacher){
+            connection.query('SELECT *  FROM Teacher WHERE email = ?;', results[0].email, function(err, teacher){
               if(err){
                 res.status(500).json({
                   success : false,
@@ -59,7 +61,7 @@ module.exports = function(connection, config){
               }
             });
           }else if(results[0].type == 'student'){
-            connection.query('SELECT *  FROM Student WHERE email = \'' + results[0].email + '\';', function(err, student){
+            connection.query('SELECT *  FROM Student WHERE email = ?;', results[0].email, function(err, student){
               if(err){
                 res.status(500).json({
                   success : false,
@@ -92,7 +94,6 @@ module.exports = function(connection, config){
         }
       }
     });
-
   });
 
   api.get("/login", function(req, res){
@@ -120,7 +121,7 @@ module.exports = function(connection, config){
           message : err
         });
       }else{
-        connection.query("SELECT p.* FROM works_on w, Project p WHERE w.s_email = \'" + decoded.email + "\' AND w.p_title = p.title;", function(dberr, projects){
+        connection.query("SELECT p.* FROM works_on w, Project p WHERE w.s_email = ? AND w.p_title = p.title;", decoded.email, function(dberr, projects){
           if(dberr){
             res.status(500).json({
               success : false,
@@ -128,7 +129,7 @@ module.exports = function(connection, config){
             });
           }else{
             async.each(projects, function(project, project_cb){
-              connection.query("SELECT * FROM Phase WHERE project = \'" + project.title +  "\';", function(phaseerr, phases){
+              connection.query("SELECT * FROM Phase WHERE project = ?;", project.title, function(phaseerr, phases){
                 if(phaseerr){
                   res.status(500).json({
                     success : false,
@@ -137,7 +138,7 @@ module.exports = function(connection, config){
                 }else{
                   project.phases = phases;
                   async.each(phases, function(phase, phase_cb){
-                    connection.query("SELECT * From Submission WHERE phase = \'" + phase.title + "\' AND submitter = \'" + decoded.email + "\';", function(suberr, submissions){
+                    connection.query("SELECT * From Submission WHERE phase = ? AND project = ? AND submitter = ?;", [phase.title, phase.project, decoded.email], function(suberr, submissions){
                       if(suberr){
                         res.status(500).json({
                           success : false,
@@ -166,9 +167,56 @@ module.exports = function(connection, config){
     });
   });
 
-  /*api.post("/new-submission", function(req, res){
-    jwt.veri
-  });*/
+  api.post("/new-submission", function(req, res){
+    jwt.verify(req.body.token, secret, function(err, decoded){
+      if(err){
+        res.status(403).json({
+          success : false,
+          message : err
+        });
+      }else{
+        connection.query("INSERT INTO Submission (phase, project, link, time, submitter) VALUES (?, ?, ?, ?, ?);", [req.body.phase, req.body.project, req.body.link, fecha.format(Date.now(), 'YYYY-MM-DD HH:mm:ss'), decoded.email], function(err, submission){
+          if(err){
+            console.log(err);
+            res.status(500).json({
+              success : false,
+              message : err
+            });
+          }else{
+            res.status(200).json({
+              success : true,
+              message : err
+            });
+          }
+        });
+      }
+    });
+  });
+
+  api.get("/teacher-classes", function(req, res){
+    jwt.verify(req.query.token, secret, function(err, decoded){
+      if(err){
+        res.status(400).json({
+          success : false,
+          message : err
+        });
+      }else{
+        connection.query("SELECT * FROM Class WHERE teacher_email = ?;", decoded.email, function(err, classes){
+          if(err){
+            res.status(500).json({
+              success : false,
+              message : err
+            });
+          }else{
+            res.status(200).json({
+              success : true,
+              message : classes
+            });
+          }
+        });
+      }
+    });
+  });
 
   return api;
 };
