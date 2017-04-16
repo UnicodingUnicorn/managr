@@ -113,7 +113,7 @@ module.exports = function(connection, config){
     });
   });
 
-  api.get("/student-projects", function(req, res){
+  api.get("/student-token-projects", function(req, res){
     jwt.verify(req.query.token, secret, function(err, decoded){
       if(err){
         res.status(403).json({
@@ -167,6 +167,10 @@ module.exports = function(connection, config){
     });
   });
 
+  /*api.get("/student-projects", function(req, res){
+    connection.query("SELECT p.* FROM Project p, works_on w WHERE p.title = ")
+  });*/
+
   api.post("/new-submission", function(req, res){
     jwt.verify(req.body.token, secret, function(err, decoded){
       if(err){
@@ -193,7 +197,7 @@ module.exports = function(connection, config){
     });
   });
 
-  api.get("/teacher-classes", function(req, res){
+  api.get("/teacher-token-classes", function(req, res){
     jwt.verify(req.query.token, secret, function(err, decoded){
       if(err){
         res.status(400).json({
@@ -208,9 +212,105 @@ module.exports = function(connection, config){
               message : err
             });
           }else{
+            async.each(classes, function(class_, class_cb){
+              connection.query("SELECT * FROM Module WHERE code = ?;", class_.module, function(err, module){
+                  if(err){
+                    class_cb(err);
+                  }else{
+                    class_.module = module[0];
+                    class_cb(null);
+                  }
+              });
+            }, function(err){
+              async.each(classes, function(class_, class_cb){
+                connection.query("SELECT * FROM Student NATURAL JOIN User WHERE email = (SELECT s_email FROM is_in WHERE c_name = ?);", class_.name, function(err, students){
+                  if(err){
+                    console.log(err);
+                    class_cb(err);
+                  }else{
+                    class_.students = students;
+                    class_cb(null);
+                  }
+                });
+              }, function(err){
+                async.each(classes, function(class_, class_cb){
+                  async.each(class_.students, function(student, student_cb){
+                    connection.query("SELECT p.* FROM Project p, works_on w WHERE p.title = w.p_title AND w.s_email = ?;", student.email, function(err, projects){
+                      if(err) {
+                        student_cb(err);
+                      }else{
+                        student.projects = projects;
+                        async.each(student.projects, function(project, project_cb){
+                          connection.query("SELECT * FROM Phase WHERE project = ?;", project.title, function(err, phases){
+                            if(err){
+                              project_cb(err);
+                            }else{
+                              project.phases = phases;
+                              async.each(project.phases, function(phase, phase_cb){
+                                connection.query("SELECT * FROM Submission WHERE phase = ? AND project = ? AND submitter = ?;", [phase.title, project.title, student.email], function(err, submissions){
+                                  if(err){
+                                     phase_cb(err);
+                                  }else{
+                                    phase.submissions = submissions;
+                                    phase_cb(null);
+                                  }
+                                });
+                              }, function(err){
+                                project_cb(err);
+                              });
+                            }
+                          });
+                        }, function(err){
+                          student_cb(err);
+                        });
+                      }
+                    });
+                  }, function(err){
+                    class_cb(err);
+                  });
+                }, function(err){
+                  if(err){
+                    console.log(err);
+                    res.status(500).json({
+                      success : false,
+                      message : err
+                    });
+                  }else{
+                    res.status(200).json({
+                      success : true,
+                      classes : classes
+                    });
+                  }
+                });
+
+              });
+            });
+          }
+        });
+      }
+    });
+  });
+
+  api.post("/grade-submission", function(req, res){
+    console.log(req.body);
+    jwt.verify(req.body.token, secret, function(err, decoded){
+      if(err){
+        res.status(403).json({
+          success : false,
+          message : "Not authenticated"
+        });
+      }else{
+        connection.query("UPDATE Submission SET comments = ?, grade = ? WHERE id = ?;", [req.body.comment, req.body.grade, parseInt(req.body.submission)], function(err, results){
+          if(err){
+            console.log(err);
+            res.status(500).json({
+              success : false,
+              message : err
+            });
+          }else{
             res.status(200).json({
               success : true,
-              message : classes
+              message : results
             });
           }
         });

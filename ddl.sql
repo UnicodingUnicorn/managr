@@ -2,6 +2,12 @@ DROP DATABASE IF EXISTS MANAGR;
 CREATE DATABASE MANAGR;
 USE MANAGR;
 
+CREATE USER 'managr'@'localhost' IDENTIFIED BY 'password';
+GRANT DELETE ON MANAGR.* TO 'managr'@'localhost';
+GRANT INSERT ON MANAGR.* TO 'managr'@'localhost';
+GRANT SELECT ON MANAGR.* TO 'managr'@'localhost';
+GRANT UPDATE ON MANAGR.* TO 'managr'@'localhost';
+
 CREATE TABLE User (
   email VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,

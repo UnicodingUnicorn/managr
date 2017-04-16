@@ -28,11 +28,22 @@ INSERT INTO Module (
 ) VALUES (
   "TT5101", "Test Module", "A module for testing"
 );
+INSERT INTO teaches (
+  t_email, module
+) VALUES (
+  "teacher@school.com", "TT5101"
+);
 --Insert test Class
 INSERT INTO Class (
   name, teacher_email, module
 ) VALUES (
   "502", "teacher@school.com", "TT5101"
+);
+--Insert relations for test Class
+INSERT INTO is_in (
+  c_name, s_email
+) VALUES (
+  "502", "student@school.com"
 );
 --Insert test Projects and Stuff
 INSERT INTO Project (

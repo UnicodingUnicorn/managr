@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Managr</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<!--link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
+
+    <script type="text/javascript" src="js/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/vue.resource/1.2.1/vue-resource.min.js"></script>
+    <script type="text/javascript" src="js/js-cookie.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <div class="row">
+        <ul class="collapsible" data-collapsible="expandable" v-for="project in projects" v-bind:ref="project.title.replace(' ', '-')">
+          <li v-for="phase in project.phases">
+            <div class="collapsible-header">{{phase.title}}</div>
+            <div class="collapsible-body">{{phase.description}}</div>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script>
+      var vm = new Vue({
+        el : '#app',
+        data : {
+          projects : null
+        }, mounted : function(){
+          console.log(JSON.stringify(this.$refs));
+          for(ref in this.$refs){
+            ref.collapsible();
+            console.log(ref);
+          }
+        }, beforeCreate : function(){
+      		var token = Cookies.get('token');
+      		if(token){
+      			this.$http.get('/api/login', {params : {token : token}}).then(
+      				function(res){
+      					vm.user = res.body.user;
+      					if(vm.user.type == "student"){
+      						this.$http.get('/api/student-token-projects', {params : {token : token}}).then(
+      							res => {
+      								vm.projects = res.body.projects;
+      							}, res => {
+      								message = res.body.message;
+      							}
+      						);
+      					}else if(vm.user.type == "teacher"){
+      						this.$http.get('/api/teacher-token-classes', {params : {token : token}}).then(
+      							res => {
+      								console.log(JSON.stringify(res.body.classes));
+      								vm.classes = res.body.classes;
+      							}, res => {
+      								message = res.body.message;
+      							}
+      						);
+      					}
+      				}, function(res){
+      					message = res.body.message;
+      				}
+      			);
+      		}
+      	}
+      });
+    </script>
+    <!--script type="text/javascript" src="js/index.js"></script-->
+  </body>
+</html>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.MainController">
+   <left>
+      <TableView fx:id="dataTable" prefHeight="300.0" prefWidth="365.0" BorderPane.alignment="CENTER" />
+   </left>
+   <bottom>
+      <TextArea fx:id="logs" prefHeight="75.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <right>
+      <AnchorPane prefHeight="300.0" prefWidth="275.0" BorderPane.alignment="CENTER">
+         <children>
+            <ChoiceBox fx:id="tablesChoice" layoutX="10.0" layoutY="10.0" prefWidth="150.0" />
+            <TextField fx:id="sqlInput" layoutX="10.0" layoutY="290.0" promptText="Query" />
+            <Separator layoutX="15.0" layoutY="240.0" prefWidth="200.0" />
+            <Button fx:id="executeSQLButton" layoutX="170.0" layoutY="290.0" mnemonicParsing="false" text="Execute" />
+            <TextField fx:id="usernameField" layoutX="10.0" layoutY="255.0" prefHeight="25.0" prefWidth="100.0" promptText="Username" />
+            <PasswordField fx:id="passwordField" layoutX="120.0" layoutY="255.0" prefHeight="25.0" prefWidth="100.0" promptText="Password" />
+            <Button fx:id="insertButton" layoutX="10.0" layoutY="45.0" mnemonicParsing="false" text="Insert" />
+            <Button fx:id="modifyButton" layoutX="65.0" layoutY="45.0" mnemonicParsing="false" text="Modify" />
+            <Button fx:id="deleteButton" layoutX="130.0" layoutY="45.0" mnemonicParsing="false" text="Delete" />
+            <Button fx:id="bulkUploadButton" layoutX="10.0" layoutY="80.0" mnemonicParsing="false" text="Bulk Upload" />
+            <Button fx:id="exportButton" layoutX="170.0" layoutY="10.0" mnemonicParsing="false" text="Export" />
+            <CheckBox fx:id="overwriteCheckbox" layoutX="100.0" layoutY="83.0" mnemonicParsing="false" text="Overwrite" />
+         </children>
+      </AnchorPane>
+   </right>
+</BorderPane>

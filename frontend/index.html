@@ -39,47 +39,122 @@
       </form>
     </div>
     <div v-else>
-      <nav>
+      <nav v-show="!issearch">
         <div class="nav-wrapper cyan">
           <a class="brand-logo">Managr</a>
           <ul id="nav-mobile" class="right">
-            <li class="disabled">{{user.email}}</li>
+            <li><a class="disabled">{{user.email}}</a></li>
+            <li><a v-on:click="issearch=!issearch;document.getElementById('#search').focus();"><i class="material-icons">search</i></a></li>
             <li><a v-on:click="logout_p">Logout</a></li>
           </ul>
         </div>
       </nav>
-      <div v-show="user.type=='student'" class="row">
-        <div class="col s10 offset-s1">
-          <div class="row">
-            <div v-for="project in projects" class="col s10 offset-s1 card">
-              <div class="card-content teal-lighten-2">
-                <span class="card-title">{{project.title}}</span>
-                <p>{{project.description}}</p>
-                <ul class="collection">
-                  <li v-for="phase in project.phases" class="collection-item avatar">
-                    <i v-show="phase.submissions.length!=0" class="material-icons circle green">done</i>
-                    <i v-show="phase.submissions.length==0" class="material-icons circle red">error_outline</i></a>
-                    <span class="title">{{phase.title}} ({{phase.percentage}}%)</span>
-                    <p>
-                      {{phase.description}}<br />
-                      Due: {{phase.deadline.replace("T", " ").split(".")[0]}}
-                      <ul v-show="phase.submissions!=0" class="collection">
-                        <li v-for="submission in phase.submissions" class="collection-item">
-                          <a v-bind:href="'/fileserve/'+submission.link">{{submission.link}}</a>
-                        </li>
-                      </ul>
-                    </p>
-                    <div class="secondary-content file-field btn" ><span><i class="material-icons">add</i></span><input v-bind:id="phase.title+'+'+project.title" @change="upload_p" type="file"></div>
-                  </li>
-                </ul>
+      <nav v-show="issearch">
+        <div class="nav-wrapper cyan">
+          <form v-on:submit.prevent="do_search">
+            <div class="input-field">
+              <input name="search" id="search" type="search" required autofocus>
+              <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+              <i class="material-icons" v-on:click="issearch=!issearch;results=[]">close</i>
+            </div>
+          </form>
+        </div>
+      </nav>
+      <div v-show="results.length == 0">
+        <div v-show="user.type=='student'" class="row">
+          <div class="col s10 offset-s1">
+            <div class="row">
+              <div v-for="project in projects" class="col s10 offset-s1 card">
+                <div class="card-content teal-lighten-2">
+                  <span class="card-title">{{project.title}}</span>
+                  <p>{{project.description}}</p>
+                  <ul class="collection">
+                    <li v-for="phase in project.phases" class="collection-item avatar">
+                      <i v-show="phase.submissions.length!=0" class="material-icons circle green">done</i>
+                      <i v-show="phase.submissions.length==0" class="material-icons circle red">error_outline</i></a>
+                      <span class="title">{{phase.title}} ({{phase.percentage}}%)</span>
+                      <p>
+                        {{phase.description}}<br />
+                        Due: {{phase.deadline.replace("T", " ").split(".")[0]}}
+                        <ul v-show="phase.submissions!=0" class="collection">
+                          <li v-for="submission in phase.submissions" class="collection-item">
+                            <span class="title"><a v-bind:href="'/fileserve/'+submission.link">{{submission.link}}</a></span>
+                            <p v-show="submission.comments || submission.grade">
+                              <span v-show="submission.grade">Grade: {{submission.grade}}</span><br />
+                              <span v-show="submission.comments">Comments: {{submission.comments}}</span>
+                            </p>
+                          </li>
+                        </ul>
+                      </p>
+                      <div class="secondary-content file-field btn" ><span><i class="material-icons">add</i></span><input v-bind:id="phase.title+'+'+project.title" @change="upload_p" type="file"></div>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div v-show="user.type=='teacher'" class="row">
-        <div class="col s10 offset-s1">
+        <div v-show="user.type=='teacher'" class="row">
+          <div class="col s10 offset-s1">
+            <div class="row">
+              <ul v-for="class_ in classes" class="collection with-header">
+                <li class="collection-header">
+                  <h5>{{class_.name}} ({{class_.module.code}})</h5>
 
+                </li>
+                <ul class="collection with-header" v-for="student in class_.students">
+                  <li class="collection-header"><h5>{{student.name}}</h5></li>
+                  <li v-for="project in student.projects" class="collection-item">
+                    <h5>{{project.title}}</h5>
+                    {{project.description}}
+                    <ul class="collection">
+                      <li v-for="phase in project.phases" class="collection-item avatar" >
+                        <a v-show="phase.submissions.length != 0" v-bind:id="phase.title+'+'+project.title">
+                          <i class="material-icons circle green">done</i>
+                        </a>
+                        <i v-show="phase.submissions.length==0" class="material-icons circle red">error_outline</i></a>
+                        <span class="title">{{phase.title}}</span>
+                        <ul class="collection" v-show="phase.submissions.length > 0">
+                          <li v-for="submission in phase.submissions" class="collection-item">
+                            <span class="title"><a v-bind:href="'/fileserve/'+submission.link">{{submission.link}}</a></span>
+                            <form v-show="!submission.grade" v-on:submit.prevent="grade" name="gradeForm">
+                              <input name="submission" v-bind:value="submission.id" style="display:none;" type="text">
+                              <div class="row">
+                                <div class="input-field col s9">
+                                  <input v-bind:id="submission.id+'comment'" type="text" class="validate" name="comment">
+                                  <label v-bind:for="submission.id+'comment'">Comments</label>
+                                </div>
+                                <div class="input-field col s2">
+                                  <input v-bind:id="submission.id+'grade'" type="text" class="validate" name="grade">
+                                  <label v-bind:for="submission.id+'grade'">Grade</label>
+                                </div>
+                                <div class="input-field col s1">
+                                  <button class="btn waves-effect waves-light" type="submit">
+                                    <i class="material-icons">send</i>
+                                  </button>
+                                </div>
+                              </div>
+                            </form>
+                            <p v-show="submission.comments || submission.grade">
+                              <span v-show="submission.grade">Grade: {{submission.grade}}</span><br />
+                              <span v-show="submission.comments">Comments: {{submission.comments}}</span>
+                            </p>
+                          </li>
+                        </ul>
+                      </li>
+                    </ul>
+                    <div class="progress">
+                      <div class="determinate" v-bind:style="{width : project.completed + '%'}"></div>
+                    </div>
+                </ul>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-show="results.length != 0" class="row">
+        <div v-for="result in results" class="card col s4">
+          {{result}}
         </div>
       </div>
     </div>
@@ -90,5 +165,4 @@
   <script type="text/javascript" src="js/materialize.min.js"></script>
   <!--script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script-->
   <script type="text/javascript" src="js/index.js"></script>
-  <script>$('.collapsible').collapsible();</script>
 </html>
